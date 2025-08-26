@@ -39,7 +39,7 @@ class TimerApp:
     def start(self):
         self.running = True
 
-        # Clear the log file at the start
+        # clearing log file at the start -- to think abt: is this the best way for teammates to use or should it just print in terminal?
         open("timer_log.txt", "w").close()
 
         while self.running and 0 <= self.current < len(self.segments):
@@ -56,25 +56,31 @@ class TimerApp:
 
                 time.sleep(1)
 
-                # 🔹 Check keyboard input
+                # keyboard input things
                 if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
                     user_input = sys.stdin.readline().strip()
-                    if user_input == "":   # Enter → skip forward
-                        print(f"\nSkipped {current_segment.name} early.")
+                    if user_input == "":  # enter → skip forward
+                        print(f"\nMoving from{current_segment.name} with {current_segment} time left.")
+                        # show next segment if it exists
+                        if self.current + 1 < len(self.segments):
+                            print(f"--- Next up: {self.segments[self.current + 1]} ---")
                         break
+
                     elif user_input.lower() == "b":  # go back
-                        print(f"\nGoing back from {current_segment.name}.")
+                        print(f"\nGoing back from {current_segment.name} with {current_segment} time left.")
                         self.current = max(0, self.current - 1)
+                        print(f"--- Returning to: {self.segments[self.current]} ---")
                         break
-                    elif user_input.lower() == "q":  # quit
-                        print("\nQuitting timer.")
+
+                    elif user_input.lower() == "q":  # quit timer
+                        print(f"\nEnding trial timer during {current_segment}.")
                         self.running = False
                         return
 
             else:  # finished without skipping
                 print(f"\n*** {current_segment.name} finished! ***")
 
-            # Handle next step
+            # handle next step
             if self.running:
                 if 'user_input' in locals() and user_input.lower() == "b":
                     continue  # restart loop at previous segment
@@ -88,12 +94,12 @@ class TimerApp:
 
 def main():
     segment_order = [
-        ("P Statements", 14),   # testing: 14 seconds (change back to *60 for minutes)
-        ("D Statements", 10),
-        ("P Directs", 12),
-        ("D Crosses", 8),
-        ("D Directs", 6),
-        ("P Crosses", 5)
+        ("P Statements", 14*60),
+        ("D Statements", 14*60),
+        ("P Directs", 25*60),
+        ("D Crosses", 25*60),
+        ("D Directs", 25*60),
+        ("P Crosses", 25*60)
     ]
 
     app = TimerApp(segment_order)
